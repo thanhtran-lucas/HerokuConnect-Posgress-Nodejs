@@ -1,0 +1,52 @@
+<div id="createContactModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form class="form-horizontal" action="/createcontact" method="post" id="form-create-contact">
+                <div class="modal-header">
+                    <h4 class="modal-title">New Contact</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label col-sm-5" for="firstname">First Name:</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" placeholder="Frist name" name="firstname" id="firstname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-5" for="lastname">Last Name:</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" placeholder="Last name" name="lastname" id="lastname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-5" for="newemail">Email:</label>
+                        <div class="col-sm-12">
+                            <input type="email" class="form-control" placeholder="Enter email" name="newemail" id="newemail">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-5" for="newphone">Phone:</label>
+                        <div class="col-sm-12">          
+                            <input type="text" class="form-control" placeholder="Enter phone" name="newphone" id="newphone">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $("#form-create-contact").submit(function(event) {
+            event.preventDefault();
+            $.ajax({ method: "POST", url: event.target.action, data: { firstname:  $("#firstname").val(), lastname:  $("#lastname").val(), email: $("#newemail").val(), phone: $("#newphone").val()}})
+            .done(function( msg ) {
+                location.reload();
+            });
+        });
+    </script>
+</div>

@@ -1,0 +1,17 @@
+{
+  "name": "thanh-heroku-connect",
+  "version": "1.0.0",
+  "description": "thanh tran testing heroku connect and node js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "thanhtran",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "pg": "^7.11.0"
+  }
+}

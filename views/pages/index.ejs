@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+  <% include ../partials/nav.ejs %>
+  
+  <div class="container mt-5">
+      <div class="row">
+          <div class="col-md-8" id="contacttable">
+              <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">Salesforce Id</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Email</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      <% contacts.forEach(function(contact) { %>
+                        <tr class="contact-item" id="<%= contact.id %>">
+                          <td><%= contact.sfid %></td>
+                          <td><%= contact.firstname + ' ' + contact.lastname %></td>
+                          <td class="contact-email"><%= contact.email %></td>
+                        </tr>
+                      <% }); %>
+                  </tbody>
+                </table>
+          </div>
+          <div class="col-md-4">
+              <form class="form-horizontal" action="/updatecontact" method="post" id="form-update-contact">
+                <div class="form-group">
+                  <label class="control-label col-sm-5" for="email">Email:</label>
+                  <div class="col-sm-12">
+                    <input type="email" class="form-control" placeholder="Enter email" name="email" id="email">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label col-sm-5" for="pwd">Phone:</label>
+                  <div class="col-sm-12">          
+                    <input type="text" class="form-control" placeholder="Enter new phone" name="phone" id="phone">
+                  </div>
+                </div>
+                <input type="hidden" name="contactId" id="contactId">
+                <div class="form-group">        
+                  <div class="col-sm-offset-2 col-sm-12">
+                      <button class="btn btn-primary" type="Submit" id="btn-update-contact">
+                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden id="btn-spinner"></span>
+                          Update
+                      </button>
+                      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDelete">Delete</button>
+                  </div>
+                </div>
+              </form>
+          </div>
+          <% include ../partials/createcontactmodal.ejs %>
+          <div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalLabel">Delete a contact</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Are you sure?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-danger" id="confirmedDelete" data-dismiss="modal">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+  </div>
+  <span id="originalDataAsJson" hidden>
+      <%= JSON.stringify(contacts); %>
+  </span>
+
+  <script>
+      $(".contact-item").click(function() {
+        const originalContacts = JSON.parse($('#originalDataAsJson').text());
+        const selectedId = $(this).attr("id");
+        const selectedContact = originalContacts.find(contact => contact.id == selectedId);
+        $("#contactId").val(selectedId);
+        $("#email").val(selectedContact.email);
+        $("#phone").val(selectedContact.phone);
+      });
+
+      $("#form-update-contact").submit(function(event) {
+        event.preventDefault();
+        updateButtonStateToLoading();
+        $.ajax({ method: "POST", url: event.target.action, data: { id:  $("#contactId").val(), email: $("#email").val(), phone: $("#phone").val()}})
+        .done(function( msg ) {
+          updateTableWithNewData();
+          resetUpdateForm();
+          resetButtonState();
+        });
+      });
+
+      function updateTableWithNewData () {
+        const selectedId = $("#contactId").val();
+        var originalContacts = JSON.parse($('#originalDataAsJson').text());
+        var selectedContact = originalContacts.find(contact => contact.id == selectedId);
+        selectedContact.email = $("#email").val();
+        selectedContact.phone = $("#phone").val();
+        $('#originalDataAsJson').text(JSON.stringify(originalContacts));
+        $( "#" + selectedId ).find( ".contact-email" ).text( selectedContact.email );
+      }
+
+      function resetUpdateForm () {
+        $("#contactId").val("");
+        $("#email").val("");
+        $("#phone").val("");
+      }
+
+      function updateButtonStateToLoading () {
+        $("#btn-spinner").attr("hidden", "hidden");
+        $("#btn-update-contact").removeAttr("disabled");
+      }
+
+      function resetButtonState () {
+        $("#btn-spinner").attr("hidden", "hidden");
+        $("#btn-update-contact").removeAttr("disabled");
+      }
+
+      $("#confirmedDelete").click(function() {
+        const originalContacts = JSON.parse($('#originalDataAsJson').text());
+        const selectedId = $("#contactId").val();
+        $.ajax({ method: "POST", url: "/deletecontact", data: {contactid: selectedId} })
+        .done(function( msg ) {
+          $( "#" + selectedId ).remove();
+        });
+      });
+  </script>
+</body>
+</html>
